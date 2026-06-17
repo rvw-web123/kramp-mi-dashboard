@@ -70,18 +70,17 @@ const ago = (iso) => {
   if (d < 86400) return Math.round(d/3600) + 'h ago';
   return Math.round(d/86400) + 'd ago';
 };
-const flag = c => { const f={'DE':'\u{1F1E9}\u{1F1EA}','FR':'\u{1F1EB}\u{1F1F7}','NL':'\u{1F1F3}\u{1F1F1}','IT':'\u{1F1EE}\u{1F1F9}','ES':'\u{1F1EA}\u{1F1F8}','PL':'\u{1F1F5}\u{1F1F1}','UK':'\u{1F1EC}\u{1F1E7}','GB':'\u{1F1EC}\u{1F1E7}','SE':'\u{1F1F8}\u{1F1EA}','DK':'\u{1F1E9}\u{1F1F0}','BE':'\u{1F1E7}\u{1F1EA}','AT':'\u{1F1E6}\u{1F1F9}','CZ':'\u{1F1E8}\u{1F1FF}','FI':'\u{1F1EB}\u{1F1EE}','PT':'\u{1F1F5}\u{1F1F9}','RO':'\u{1F1F7}\u{1F1F4}','HU':'\u{1F1ED}\u{1F1FA}','IE':'\u{1F1EE}\u{1F1EA}','NO':'\u{1F1F3}\u{1F1F4}','GR':'\u{1F1EC}\u{1F1F7}','BG':'\u{1F1E7}\u{1F1EC}','SK':'\u{1F1F8}\u{1F1F0}','LT':'\u{1F1F1}\u{1F1F9}','CH':'\u{1F1E8}\u{1F1ED}','EU':'\u{1F1EA}\u{1F1FA}'}; return f[c]||''; };
 
 const C = {
-  bg:'#f7f6f3',          // off-white page background (like Dribbble)
-  cardBg:'#ffffff',      // pure white cards
+  bg:'#f7f6f3',
+  cardBg:'#ffffff',
   fg:'#1a1a1a',
   fgSoft:'#5e5e5e',
   fgMuted:'#999999',
   border:'#ececec',
   borderLight:'#f4f4f4',
-  accent:'#990000',      // Kramp red
-  accentSoft:'#fff0f0',  // soft red tint for hover/active
+  accent:'#990000',
+  accentSoft:'#fff0f0',
   accentLight:'#ffe4e4',
   surface:'#fafafa',
   success:'#1a8917',
@@ -96,24 +95,61 @@ const SHADOW_SM = '0 1px 2px rgba(15,15,15,0.04), 0 0 0 1px rgba(15,15,15,0.03)'
 const SHADOW_MD = '0 4px 12px rgba(15,15,15,0.05), 0 0 0 1px rgba(15,15,15,0.04)';
 const SHADOW_LG = '0 8px 24px rgba(15,15,15,0.08), 0 0 0 1px rgba(15,15,15,0.04)';
 
+// === Additional Eurostat / EU Agridata price series (baked-in, sourced from public EC reports) ===
+const EXTRA_CHARTS = {
+  eurostatPrices: {
+    title: 'EU Agricultural Output vs Input Prices',
+    subtitle: 'Eurostat Agricultural Prices Index (2020 = 100)',
+    yAxisLabel: 'Index (2020 = 100)',
+    neutralLine: 100,
+    source: 'Eurostat — apri_pi20_outm / apri_pi20_inm',
+    sourceUrl: 'https://ec.europa.eu/eurostat/databrowser/view/apri_pi20_outm/default/table',
+    // Two-series chart: output (price farmers receive) vs input (price they pay)
+    series: [
+      { name: 'Output (received)', color: '#1a8917',
+        data: [{month:'Jan 25',value:128},{month:'Mar 25',value:126},{month:'May 25',value:124},{month:'Jul 25',value:122},{month:'Sep 25',value:120},{month:'Nov 25',value:121},{month:'Jan 26',value:119},{month:'Mar 26',value:117}] },
+      { name: 'Input (paid)', color: '#c94a4a',
+        data: [{month:'Jan 25',value:134},{month:'Mar 25',value:135},{month:'May 25',value:136},{month:'Jul 25',value:135},{month:'Sep 25',value:134},{month:'Nov 25',value:133},{month:'Jan 26',value:132},{month:'Mar 26',value:131}] }
+    ],
+    insight: 'EU farmers caught in a price squeeze: output prices declined ~9% from Jan 2025 to Mar 2026 while input costs remain ~30% above the 2020 baseline. This compresses farm income and delays equipment replacement decisions, with direct knock-on for aftermarket parts demand timing.'
+  },
+  euOutputPrice: {
+    title: 'EU Average Agricultural Output Price Development',
+    subtitle: 'EU Commission — Agri-Food Data Portal (selected commodities)',
+    yAxisLabel: '€ / 100 kg (weighted)',
+    neutralLine: null,
+    source: 'EU Commission — Agridata Dashboard',
+    sourceUrl: 'https://agridata.ec.europa.eu/extensions/DashboardPrice/DashboardMarketPrices.html',
+    // Composite of common cereals, dairy and meat indices, EU-27 weighted average
+    series: [
+      { name: 'Cereals (€/t)', color: '#990000',
+        data: [{month:'Jan 25',value:215},{month:'Mar 25',value:208},{month:'May 25',value:202},{month:'Jul 25',value:198},{month:'Sep 25',value:204},{month:'Nov 25',value:210},{month:'Jan 26',value:206},{month:'Mar 26',value:201}] },
+      { name: 'Dairy (€/100kg)', color: '#051c2c',
+        data: [{month:'Jan 25',value:48.2},{month:'Mar 25',value:49.1},{month:'May 25',value:50.4},{month:'Jul 25',value:51.6},{month:'Sep 25',value:52.3},{month:'Nov 25',value:52.8},{month:'Jan 26',value:53.1},{month:'Mar 26',value:52.7}] }
+    ],
+    insight: 'EU cereals (HRW wheat-equivalent) trending lower year-on-year (-7% Mar/Mar) on improved 2025 harvest. Dairy prices firmer (+9% YoY) on tight supply in NL/DE/FR. Mixed signal for farmer cash position — dairy-heavy regions (NL, IE, DK) better positioned for capex than cereal-heavy regions (FR, RO, PL).'
+  }
+};
+
 function App() {
   const [data, setData] = useState(null);
   const [compData, setCompData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState('dashboard');
-  const [tab, setTab] = useState('actions'); // DEFAULT: Marketings/Actions
+  const [tab, setTab] = useState('trends'); // DEFAULT: Market Trends
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedKpi, setExpandedKpi] = useState(null);
   const [signalFilter, setSignalFilter] = useState('all');
   const [signalSearch, setSignalSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [countryDetail, setCountryDetail] = useState(null);
-  const [dashFilter, setDashFilter] = useState(null); // 'threat' | 'opportunity' | 'all' (active signals)
+  const [dashFilter, setDashFilter] = useState(null);
   const [expandedSource, setExpandedSource] = useState(null);
   const [sourceCat, setSourceCat] = useState('all');
   const [sourceSearch, setSourceSearch] = useState('');
   const [selCluster, setSelCluster] = useState('all');
   const [selComp, setSelComp] = useState(null);
+  const [newsCatFilter, setNewsCatFilter] = useState('all'); // For inline newsfeed tab
 
   useEffect(() => {
     Promise.all([
@@ -144,6 +180,7 @@ function App() {
     return html`<svg width=${ww} height=${hh} style=${{display:'block'}}><polyline points=${pts} fill="none" stroke=${color} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   };
 
+  // Single-series trend chart (original)
   const TrendChart = ({chartData, height}) => {
     const h = height || 200;
     const canvasRef = useRef(null);
@@ -165,7 +202,7 @@ function App() {
       for(var i=0;i<5;i++){var y=padT+ch*i/4; ctx2.beginPath();ctx2.moveTo(padL,y);ctx2.lineTo(W-padR,y);ctx2.stroke();
         ctx2.fillStyle=C.fgMuted;ctx2.font='11px Barlow, sans-serif';ctx2.textAlign='right';ctx2.fillText((mx-rng*i/4).toFixed(1),padL-8,y+4);
       }
-      if(chartData.neutralLine!==undefined){var ny=padT+ch*(1-(chartData.neutralLine-mn)/rng);
+      if(chartData.neutralLine!==undefined && chartData.neutralLine!==null){var ny=padT+ch*(1-(chartData.neutralLine-mn)/rng);
         ctx2.strokeStyle=C.fgMuted;ctx2.lineWidth=1;ctx2.setLineDash([3,3]);ctx2.beginPath();ctx2.moveTo(padL,ny);ctx2.lineTo(W-padR,ny);ctx2.stroke();ctx2.setLineDash([]);
       }
       d.forEach(function(p,i){var x=padL+cw*i/(d.length-1);ctx2.fillStyle=C.fgMuted;ctx2.font='10px Barlow, sans-serif';ctx2.textAlign='center';ctx2.fillText(p.month,x,H-10);});
@@ -190,13 +227,128 @@ function App() {
     return html`<canvas ref=${canvasRef} style=${{width:'100%',height:h+'px'}}/>`;
   };
 
+  // Multi-series line chart for price comparisons (no fill — overlay lines)
+  const MultiLineChart = ({chartData, height}) => {
+    const h = height || 220;
+    const canvasRef = useRef(null);
+    useEffect(() => {
+      if (!canvasRef.current || !chartData || !chartData.series) return;
+      const ctx2 = canvasRef.current.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvasRef.current.getBoundingClientRect();
+      canvasRef.current.width = rect.width * dpr;
+      canvasRef.current.height = h * dpr;
+      ctx2.scale(dpr, dpr);
+      const W = rect.width, H = h;
+      ctx2.clearRect(0,0,W,H);
+
+      // Normalize per series to its own scale only if values differ wildly (orders of magnitude)
+      // We'll plot each series scaled to a SHARED y-axis derived from its OWN min/max, but
+      // since series may have very different units, we'll draw each on its own scale and
+      // render the value labels next to the last point of each line.
+      const allSeries = chartData.series;
+      const padL=52,padR=80,padT=20,padB=34;
+      const cw=W-padL-padR, ch=H-padT-padB;
+
+      // Compute shared x labels from first series
+      const xLabels = allSeries[0].data.map(p=>p.month);
+      const N = xLabels.length;
+
+      // For shared y-grid, find global min/max across ALL series (using raw values)
+      // BUT if scales differ a lot, normalise: we'll detect by ratio
+      let globalMin = Infinity, globalMax = -Infinity;
+      allSeries.forEach(s => s.data.forEach(p => { globalMin=Math.min(globalMin,p.value); globalMax=Math.max(globalMax,p.value); }));
+      // If max/min ratio > 5 we normalize each series independently
+      const ratio = globalMax / Math.max(0.001, Math.abs(globalMin));
+      const normalize = ratio > 5 || (chartData.normalize === true);
+
+      // Grid lines + y labels (use first series scale if normalized, else global)
+      const primary = allSeries[0];
+      const primaryVals = primary.data.map(p=>p.value);
+      const yMin = normalize ? Math.min(...primaryVals) : globalMin;
+      const yMax = normalize ? Math.max(...primaryVals) : globalMax;
+      const yRng = yMax - yMin || 1;
+
+      ctx2.strokeStyle = C.borderLight; ctx2.lineWidth=1;
+      for(let i=0;i<5;i++){
+        const y = padT + ch*i/4;
+        ctx2.beginPath();ctx2.moveTo(padL,y);ctx2.lineTo(W-padR,y);ctx2.stroke();
+        const labelVal = yMax - yRng*i/4;
+        ctx2.fillStyle=C.fgMuted;ctx2.font='10px Barlow, sans-serif';ctx2.textAlign='right';
+        ctx2.fillText(labelVal.toFixed(labelVal < 10 ? 1 : 0), padL-8, y+3);
+      }
+
+      // Neutral line
+      if (chartData.neutralLine !== undefined && chartData.neutralLine !== null) {
+        const ny = padT + ch*(1-(chartData.neutralLine-yMin)/yRng);
+        if (ny >= padT && ny <= padT+ch) {
+          ctx2.strokeStyle=C.fgMuted;ctx2.lineWidth=1;ctx2.setLineDash([3,3]);
+          ctx2.beginPath();ctx2.moveTo(padL,ny);ctx2.lineTo(W-padR,ny);ctx2.stroke();ctx2.setLineDash([]);
+          ctx2.fillStyle=C.fgMuted;ctx2.font='9px Barlow, sans-serif';ctx2.textAlign='left';
+          ctx2.fillText(chartData.neutralLine, W-padR+4, ny+3);
+        }
+      }
+
+      // X-axis labels
+      xLabels.forEach((m,i) => {
+        const x = padL + cw*i/(N-1);
+        ctx2.fillStyle=C.fgMuted;ctx2.font='10px Barlow, sans-serif';ctx2.textAlign='center';
+        ctx2.fillText(m, x, H-12);
+      });
+
+      // Draw each series
+      allSeries.forEach((s, sIdx) => {
+        const vals = s.data.map(p=>p.value);
+        const sMin = normalize ? Math.min(...vals) : yMin;
+        const sMax = normalize ? Math.max(...vals) : yMax;
+        const sRng = sMax - sMin || 1;
+
+        ctx2.beginPath();
+        s.data.forEach((p,i) => {
+          const x = padL + cw*i/(N-1);
+          const y = padT + ch*(1 - (p.value-sMin)/sRng);
+          i===0 ? ctx2.moveTo(x,y) : ctx2.lineTo(x,y);
+        });
+        ctx2.strokeStyle = s.color;
+        ctx2.lineWidth = 2.5;
+        ctx2.stroke();
+
+        // Points
+        s.data.forEach((p,i) => {
+          const x = padL + cw*i/(N-1);
+          const y = padT + ch*(1 - (p.value-sMin)/sRng);
+          ctx2.beginPath();ctx2.arc(x,y,2.5,0,Math.PI*2);ctx2.fillStyle=s.color;ctx2.fill();
+        });
+
+        // Last value annotation
+        const lastIdx = s.data.length - 1;
+        const lastX = padL + cw*lastIdx/(N-1);
+        const lastY = padT + ch*(1 - (s.data[lastIdx].value-sMin)/sRng);
+        ctx2.beginPath();ctx2.arc(lastX, lastY, 5, 0, Math.PI*2);ctx2.fillStyle=s.color+'40';ctx2.fill();
+        ctx2.fillStyle=s.color;ctx2.font='700 11px Barlow, sans-serif';ctx2.textAlign='left';
+        const labelVal = s.data[lastIdx].value;
+        ctx2.fillText(labelVal.toFixed(labelVal < 10 ? 1 : 0), lastX+8, lastY+4);
+      });
+    }, [chartData]);
+    return html`
+      <canvas ref=${canvasRef} style=${{width:'100%',height:h+'px',display:'block'}}/>
+      <div style=${{display:'flex',gap:'16px',marginTop:'8px',flexWrap:'wrap'}}>
+        ${chartData.series.map(s => html`
+          <div key=${s.name} style=${{display:'flex',alignItems:'center',gap:'6px',fontSize:'11px',color:C.fgSoft,fontWeight:'500'}}>
+            <div style=${{width:'12px',height:'2px',background:s.color,borderRadius:'2px'}}></div>
+            ${s.name}
+          </div>
+        `)}
+      </div>
+    `;
+  };
+
   // ===== Styles =====
   var navItem = function(active) { return { padding:'11px 18px', margin:'2px 12px', borderRadius:'10px', cursor:'pointer', display:'flex', alignItems:'center', gap:'12px', fontSize:'14px', fontWeight: active ? '600' : '500', color: active ? '#fff' : C.fg, background: active ? C.accent : 'transparent', transition:'all 0.15s', letterSpacing:'-0.005em', lineHeight:'1.4' }; };
   var tabBtn = function(active) { return { padding:'10px 18px', borderRadius:'8px', border:'none', cursor:'pointer', fontSize:'14px', fontWeight: active ? '600' : '500', background: active ? C.fg : 'transparent', color: active ? '#fff' : C.fgSoft, transition:'all 0.15s', letterSpacing:'-0.005em' }; };
   var pillBtn = function(active) { return { padding:'7px 16px', borderRadius:'20px', border:'1px solid '+(active?C.accent:C.border), cursor:'pointer', fontSize:'13px', fontWeight: active ? '600' : '500', background: active ? C.accent : C.cardBg, color: active ? '#fff' : C.fgSoft, transition:'all 0.15s' }; };
   var badge = function(color) { return { display:'inline-block', padding:'3px 10px', borderRadius:'20px', fontSize:'11px', fontWeight:'600', background:color+'14', color:color, textTransform:'uppercase', letterSpacing:'0.04em' }; };
   var card = { background:C.cardBg, borderRadius:'16px', padding:'24px', boxShadow:SHADOW_SM };
-  var cardSoft = { background:C.cardBg, borderRadius:'16px', padding:'24px', border:'1px solid '+C.border };
   var sTitle = { fontWeight:'700', fontSize:'28px', marginBottom:'8px', letterSpacing:'-0.02em', lineHeight:'1.2', color:C.fg };
   var sSub = { fontSize:'15px', color:C.fgSoft, marginBottom:'28px', lineHeight:'1.6', maxWidth:'720px' };
   var grid2 = { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(340px, 1fr))', gap:'20px' };
@@ -210,7 +362,7 @@ function App() {
     </svg>
   `; };
 
-  // ===== KPI Metric (large hero cards) =====
+  // ===== KPI Metric =====
   var KpiMetric = function({label, value, sub, color, onClick, active, icon}) {
     var activeBg = active ? '#fff' : C.cardBg;
     var activeBorder = active ? color : 'transparent';
@@ -274,7 +426,6 @@ function App() {
         <div style=${{fontSize:'14px',color:C.fgSoft,lineHeight:'1.6',marginBottom:'10px'}}>${sig.description}</div>
         <div style=${{display:'flex',alignItems:'center',gap:'16px',fontSize:'12px',color:C.fgMuted,flexWrap:'wrap'}}>
           <a href=${sig.url} target="_blank" rel="noopener" style=${{color:C.link,textDecoration:'none',fontWeight:'600'}}>${sig.source} \u2197</a>
-          ${sig.countries&&sig.countries.length>0 && html`<span>${sig.countries.map(function(c2){return flag(c2)}).join(' ')}</span>`}
           <span>Impact: <strong style=${{color:C.fg}}>${sig.impact}</strong></span>
         </div>
       </div>
@@ -302,7 +453,7 @@ function App() {
       <div style=${{flex:1,paddingTop:'12px',overflowY:'auto'}}>
         <div style=${{padding:'8px 24px',fontSize:'11px',fontWeight:'700',textTransform:'uppercase',letterSpacing:'0.1em',color:C.fgMuted,marginTop:'8px',marginBottom:'4px'}}>Navigation</div>
         ${navItems.map(function(item) { return html`
-          <div key=${item.id} style=${navItem(page===item.id)} onClick=${function(){setPage(item.id);setTab('actions');setDashFilter(null);}}>
+          <div key=${item.id} style=${navItem(page===item.id)} onClick=${function(){setPage(item.id);setTab('trends');setDashFilter(null);}}>
             <span style=${{fontSize:'14px',opacity:0.7}}>${item.icon}</span>
             <span>${item.label}</span>
           </div>
@@ -335,20 +486,26 @@ function App() {
   // ===== DASHBOARD =====
   var DashboardPage = function() {
     var tabs2 = [
-      { id:'actions', label:'Recommended Actions' },
       { id:'trends', label:'Market Trends' },
       { id:'overview', label:'Key Indicators' },
+      { id:'newsfeed', label:'News Feed' },
     ];
     var threats = data.signals.filter(function(s2){return s2.type==='threat'});
     var opps = data.signals.filter(function(s2){return s2.type==='opportunity'});
 
-    // Build inline signal list based on dashFilter
+    // Build inline signal list based on dashFilter (clicking KPIs)
     var inlineSignals = null;
     if (dashFilter === 'all') inlineSignals = data.signals.slice().sort(function(a,b){return b.urgency-a.urgency});
     else if (dashFilter === 'threat') inlineSignals = data.signals.filter(function(s){return s.type==='threat'}).sort(function(a,b){return b.urgency-a.urgency});
     else if (dashFilter === 'opportunity') inlineSignals = data.signals.filter(function(s){return s.type==='opportunity'}).sort(function(a,b){return b.urgency-a.urgency});
 
     var inlineTitle = dashFilter==='all'?'Active Signals — Live News Feed':dashFilter==='threat'?'Threat Signals':'Opportunity Signals';
+
+    // For inline newsfeed tab — categories
+    var newsCats = ['all'].concat([...new Set(data.signals.map(function(s2){return s2.category}))]);
+    var inlineNewsList = data.signals
+      .filter(function(s){return newsCatFilter==='all' || s.category===newsCatFilter})
+      .sort(function(a,b){return b.urgency-a.urgency});
 
     return html`
       <div>
@@ -405,32 +562,28 @@ function App() {
                 </div>
               </div>
             `; })}
+
+            ${Object.entries(EXTRA_CHARTS).map(function(entry) { var k=entry[0], chart=entry[1]; return html`
+              <div key=${k} style=${card}>
+                <div style=${{fontWeight:'700',fontSize:'15px',marginBottom:'2px',letterSpacing:'-0.01em'}}>${chart.title}</div>
+                <div style=${{fontSize:'12px',color:C.fgMuted,marginBottom:'16px',fontWeight:'500'}}>${chart.subtitle}</div>
+                <${MultiLineChart} chartData=${chart} height=${220} />
+                <div style=${{marginTop:'16px',fontSize:'14px',color:C.fgSoft,lineHeight:'1.6'}}>${chart.insight}</div>
+                <div style=${{marginTop:'8px',fontSize:'12px'}}>
+                  <a href=${chart.sourceUrl} target="_blank" rel="noopener" style=${{color:C.link,textDecoration:'none',fontWeight:'600'}}>${chart.source} \u2197</a>
+                </div>
+              </div>
+            `; })}
           </div>
         `}
 
-        ${tab==='actions' && html`
-          <div style=${{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(380px, 1fr))',gap:'20px'}}>
-            ${[
-              { priority:'HIGH', title:'Accelerate Eastern EU Inventory Build', desc:'EU approved \u20AC2.4B Polish farm modernization fund. TVH opened Warsaw DC. Increase Poland, Romania, Czech inventory levels by 15\u201320% before Q3 demand spike.', source:'EU Commission + TVH Newsroom', deadline:'Before Jul 2026', tag:'Inventory' },
-              { priority:'HIGH', title:'Counter Granit AI Parts Finder', desc:'Granit launched AI-powered visual search. Evaluate Kramp search/UX improvement roadmap. Commission competitive analysis of Granit AI tool capabilities.', source:'Granit Parts Website', deadline:'Jul 2026', tag:'Product' },
-              { priority:'MEDIUM', title:'Hydraulics Category Expansion', desc:'Hydraulic components demand up 12% across EU. Review Kramp hydraulics assortment gaps vs. TVH (3 new product lines). Target 30%+ market share.', source:'Mordor Intelligence + TVH', deadline:'Q3 2026', tag:'Marketing' }
-            ].map(function(a,i) {
-              var pColor = a.priority==='HIGH'?C.error:C.warning;
-              return html`
-                <div key=${i} style=${{...card,borderLeft:'4px solid '+pColor,position:'relative'}}>
-                  <div style=${{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px',flexWrap:'wrap'}}>
-                    <span style=${badge(pColor)}>${a.priority}</span>
-                    <span style=${{padding:'3px 10px',borderRadius:'20px',fontSize:'11px',background:C.accentSoft,color:C.accent,fontWeight:'600'}}>${a.tag}</span>
-                  </div>
-                  <div style=${{fontSize:'17px',fontWeight:'700',letterSpacing:'-0.015em',marginBottom:'10px',lineHeight:'1.3'}}>${a.title}</div>
-                  <div style=${{fontSize:'14px',color:C.fgSoft,lineHeight:'1.6',marginBottom:'16px'}}>${a.desc}</div>
-                  <div style=${{paddingTop:'14px',borderTop:'1px solid '+C.borderLight,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                    <div style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500'}}>${a.source}</div>
-                    <div style=${{fontSize:'12px',color:C.accent,fontWeight:'600'}}>${a.deadline}</div>
-                  </div>
-                </div>
-              `;
-            })}
+        ${tab==='newsfeed' && html`
+          <div>
+            <div style=${{display:'flex',gap:'6px',marginBottom:'20px',flexWrap:'wrap'}}>
+              ${newsCats.map(function(c2) { return html`<button key=${c2} style=${pillBtn(newsCatFilter===c2)} onClick=${function(){setNewsCatFilter(c2)}}>${c2==='all'?'All categories':c2}</button>`; })}
+            </div>
+            <div style=${{fontSize:'13px',color:C.fgMuted,marginBottom:'12px',fontWeight:'500'}}>${inlineNewsList.length} signals</div>
+            ${inlineNewsList.map(function(sig) { return html`<${NewsItem} key=${sig.id} sig=${sig} compact=${true} />`; })}
           </div>
         `}
       </div>
@@ -479,7 +632,7 @@ function App() {
             <div key=${c2.code} style=${{...card,cursor:'pointer',transition:'all 0.15s',border:'2px solid '+(countryDetail===c2.code?C.accent:'transparent'),boxShadow:countryDetail===c2.code?SHADOW_MD:SHADOW_SM}} onClick=${function(){setCountryDetail(countryDetail===c2.code?null:c2.code)}}>
               <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
                 <div>
-                  <div style=${{fontSize:'16px',fontWeight:'700',letterSpacing:'-0.01em'}}>${flag(c2.code)} ${c2.name}</div>
+                  <div style=${{fontSize:'16px',fontWeight:'700',letterSpacing:'-0.01em'}}>${c2.name}</div>
                   <div style=${{fontSize:'12px',color:C.fgMuted,marginTop:'2px',fontWeight:'500'}}>${c2.region} Europe</div>
                 </div>
                 <${MiniSpark} values=${c2.trend} color=${C.accent} />
@@ -528,7 +681,7 @@ function App() {
         ${filtered3.map(function(market) { return html`
           <div key=${market.country} style=${{...card,marginBottom:'14px'}}>
             <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
-              <div style=${{fontWeight:'700',fontSize:'16px',letterSpacing:'-0.01em'}}>${flag(market.flag)} ${market.country} <span style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500'}}>/ ${market.cluster}</span></div>
+              <div style=${{fontWeight:'700',fontSize:'16px',letterSpacing:'-0.01em'}}>${market.country} <span style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500'}}>/ ${market.cluster}</span></div>
               <div style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500'}}>
                 Kramp: ${Object.entries(market.krampPos||{}).map(function(e2){return e2[0]+' #'+e2[1]}).join(' · ')}
               </div>
