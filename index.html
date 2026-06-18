@@ -1271,71 +1271,317 @@ function App() {
 
 
   // ===== COMPETITORS =====
-  var CompetitorsPage = function() {
-    if (!compData) return html`<div style=${{color:C.fgMuted}}>Loading…</div>`;
-    var clusters = [...new Set(compData.landscape.map(function(l){return l.cluster}))];
-    var filtered3 = selCluster==='all' ? compData.landscape : compData.landscape.filter(function(l){return l.cluster===selCluster});
+  // ---------------------------------------------------------------------------
+  // Kramp Competitive Position 2026 (external-signal estimates).
+  // This is a self-contained dataset to make it easy to replace later with a
+  // real pipeline. Each country lists, per segment (AG / F&L / CON):
+  //   - competitors: ordered list (index 0 = strongest estimated position)
+  //   - krampRank:   Kramp's estimated rank within that ordered list (1-based)
+  //   - status:      Defend | Attack | At risk | White space | Monitor
+  //   - trend:       up | flat | down  (Kramp's directional momentum)
+  //   - confidence:  High | Medium | Low
+  // Status logic (applied at data definition time, not derived):
+  //   Defend     = Kramp #1
+  //   Attack     = Kramp #2 or #3
+  //   At risk    = Kramp behind key competitors or weakening
+  //   White space= low Kramp presence but attractive market
+  //   Monitor    = no immediate action
+  // ---------------------------------------------------------------------------
+  var KRAMP_LANDSCAPE_2026 = [
+    { country:'Netherlands', flag:'NL', cluster:'Benelux', priority:1,
+      action:'Defend AG/F&L and attack CON versus TVH.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','TVH','BartsParts','Sparex'], krampRank:1, status:'Defend',    trend:'flat', confidence:'High' },
+        FL: { competitors:['Kramp','EuroGarden','GRANIT Parts','BartsParts'],   krampRank:1, status:'Defend',    trend:'up',   confidence:'High' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts','BartsParts'],          krampRank:2, status:'Attack',    trend:'up',   confidence:'Medium' }
+      }},
+    { country:'Belgium', flag:'BE', cluster:'Benelux', priority:2,
+      action:'Benchmark CON versus TVH and attack F&L versus EuroGarden.',
+      segments:{
+        AG: { competitors:['Kramp','TVH','GRANIT Parts','BartsParts','Sparex'], krampRank:1, status:'Defend',    trend:'flat', confidence:'High' },
+        FL: { competitors:['EuroGarden','Kramp','GRANIT Parts','BartsParts'],   krampRank:2, status:'Attack',    trend:'flat', confidence:'Medium' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts'],                       krampRank:2, status:'Attack',    trend:'up',   confidence:'Medium' }
+      }},
+    { country:'Germany', flag:'DE', cluster:'DACH', priority:1,
+      action:'Prioritise F&L visibility and benchmark versus E&L, Jolst and GRANIT.',
+      segments:{
+        AG: { competitors:['GRANIT Parts','Kramp','BayWa','Sparex','Agravis'],  krampRank:2, status:'Attack',    trend:'flat', confidence:'High' },
+        FL: { competitors:['E&L','Jolst','GRANIT Parts','Kramp','EuroGarden'],  krampRank:4, status:'At risk',   trend:'flat', confidence:'Medium' },
+        CON:{ competitors:['GRANIT Parts','TVH','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'up', confidence:'Medium' }
+      }},
+    { country:'Austria', flag:'AT', cluster:'DACH', priority:2,
+      action:'Build F&L and CON visibility.',
+      segments:{
+        AG: { competitors:['GRANIT Parts','Kramp','BayWa','Sparex'],            krampRank:2, status:'Attack',    trend:'flat', confidence:'Medium' },
+        FL: { competitors:['GRANIT Parts','local F&L specialists','Kramp'],     krampRank:3, status:'At risk',   trend:'flat', confidence:'Low' },
+        CON:{ competitors:['GRANIT Parts','TVH','Kramp'],                       krampRank:3, status:'Attack',    trend:'flat', confidence:'Low' }
+      }},
+    { country:'Switzerland', flag:'CH', cluster:'DACH', priority:3,
+      action:'Defend AG and validate F&L/CON versus Paul Forrer.',
+      segments:{
+        AG: { competitors:['Kramp','Paul Forrer','GRANIT Parts','Sparex'],      krampRank:1, status:'Defend',    trend:'flat', confidence:'Medium' },
+        FL: { competitors:['Paul Forrer','local F&L specialists','Kramp','GRANIT Parts'], krampRank:3, status:'At risk', trend:'flat', confidence:'Low' },
+        CON:{ competitors:['Paul Forrer','TVH','GRANIT Parts','Kramp'],         krampRank:4, status:'At risk',   trend:'flat', confidence:'Low' }
+      }},
+    { country:'France', flag:'FR', cluster:'South West', priority:1,
+      action:'Maintain AG/F&L and attack CON.',
+      segments:{
+        AG: { competitors:['Kramp','Agrizone','GRANIT Parts','TVH','Sparex'],   krampRank:1, status:'Defend',    trend:'flat', confidence:'High' },
+        FL: { competitors:['Kramp','EuroGarden','GRANIT Parts','local F&L specialists'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        CON:{ competitors:['TVH','GRANIT Parts','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'up', confidence:'Medium' }
+      }},
+    { country:'Spain', flag:'ES', cluster:'South West', priority:2,
+      action:'Expand F&L and validate CON opportunity.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        FL: { competitors:['Kramp','EuroGarden','GRANIT Parts','local F&L specialists'], krampRank:1, status:'Defend', trend:'up', confidence:'Low' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts','local construction specialists'], krampRank:2, status:'Attack', trend:'up', confidence:'Low' }
+      }},
+    { country:'Italy', flag:'IT', cluster:'South West', priority:2,
+      action:'Prioritise CON visibility while protecting AG.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'Medium' },
+        FL: { competitors:['Kramp','EuroGarden','GRANIT Parts','local F&L specialists'], krampRank:1, status:'Defend', trend:'flat', confidence:'Low' },
+        CON:{ competitors:['TVH','GRANIT Parts','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'up', confidence:'Low' }
+      }},
+    { country:'United Kingdom', flag:'GB', cluster:'South West', priority:1,
+      action:'Monitor Sparex in AG and attack CON.',
+      segments:{
+        AG: { competitors:['Kramp','Sparex','GRANIT Parts','Agriline','TVH'],   krampRank:1, status:'Defend',    trend:'flat', confidence:'High' },
+        FL: { competitors:['Kramp','EuroGarden','GRANIT Parts','local F&L specialists'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        CON:{ competitors:['TVH','GRANIT Parts','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'up', confidence:'Medium' }
+      }},
+    { country:'Ireland', flag:'IE', cluster:'South West', priority:3,
+      action:'Use Genfitt to defend AG and test CON.',
+      segments:{
+        AG: { competitors:['Kramp / Genfitt','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        FL: { competitors:['Kramp','EuroGarden','local F&L specialists'],       krampRank:1, status:'Defend',    trend:'flat', confidence:'Low' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts','local construction specialists'], krampRank:2, status:'Attack', trend:'flat', confidence:'Low' }
+      }},
+    { country:'Denmark', flag:'DK', cluster:'Nordics', priority:2,
+      action:'Protect AG and expand F&L/CON.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'High' },
+        FL: { competitors:['Kramp','GRANIT Parts','EuroGarden','local F&L specialists'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts'],                       krampRank:2, status:'Attack',    trend:'up',   confidence:'Medium' }
+      }},
+    { country:'Sweden', flag:'SE', cluster:'Nordics', priority:2,
+      action:'Use Nordic momentum to grow F&L and CON.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'High' },
+        FL: { competitors:['Kramp','GRANIT Parts','local forestry specialists'], krampRank:1, status:'Defend',   trend:'up',   confidence:'Medium' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts','local construction specialists'], krampRank:2, status:'Attack', trend:'up', confidence:'Medium' }
+      }},
+    { country:'Norway', flag:'NO', cluster:'Nordics', priority:3,
+      action:'Validate forestry specialists and CON opportunity.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'Medium' },
+        FL: { competitors:['Kramp','local forestry specialists','GRANIT Parts'], krampRank:1, status:'Defend',   trend:'flat', confidence:'Low' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts'],                       krampRank:2, status:'Attack',    trend:'flat', confidence:'Low' }
+      }},
+    { country:'Finland', flag:'FI', cluster:'Nordics', priority:3,
+      action:'Validate F&L and CON competitor strength.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'Medium' },
+        FL: { competitors:['Kramp','local forestry specialists','GRANIT Parts'], krampRank:1, status:'Defend',   trend:'flat', confidence:'Low' },
+        CON:{ competitors:['TVH','Kramp','GRANIT Parts'],                       krampRank:2, status:'Attack',    trend:'flat', confidence:'Low' }
+      }},
+    { country:'Poland', flag:'PL', cluster:'CEE', priority:1,
+      action:'Attack CON as priority segment.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'up', confidence:'High' },
+        FL: { competitors:['Kramp','GRANIT Parts','EuroGarden','local F&L specialists'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        CON:{ competitors:['TVH','GRANIT Parts','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'up', confidence:'Medium' }
+      }},
+    { country:'Czech Republic', flag:'CZ', cluster:'CEE', priority:2,
+      action:'Benchmark CON versus GRANIT and TVH.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'Medium' },
+        FL: { competitors:['Kramp','GRANIT Parts','local F&L specialists'],     krampRank:1, status:'Defend',    trend:'flat', confidence:'Low' },
+        CON:{ competitors:['GRANIT Parts','TVH','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'flat', confidence:'Low' }
+      }},
+    { country:'Hungary', flag:'HU', cluster:'CEE', priority:2,
+      action:'Validate CON opportunity and local specialists.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'Medium' },
+        FL: { competitors:['Kramp','GRANIT Parts','local F&L specialists'],     krampRank:1, status:'Defend',    trend:'flat', confidence:'Low' },
+        CON:{ competitors:['GRANIT Parts','TVH','Kramp','local construction specialists'], krampRank:3, status:'Attack', trend:'flat', confidence:'Low' }
+      }},
+    { country:'Romania', flag:'RO', cluster:'CEE', priority:2,
+      action:'Test small earth-moving demand and competitor visibility.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'up', confidence:'Medium' },
+        FL: { competitors:['Kramp','GRANIT Parts','local F&L specialists'],     krampRank:1, status:'Defend',    trend:'flat', confidence:'Low' },
+        CON:{ competitors:['TVH','GRANIT Parts','Kramp','local construction specialists'], krampRank:3, status:'White space', trend:'flat', confidence:'Low' }
+      }},
+    { country:'Bulgaria', flag:'BG', cluster:'CEE', priority:3,
+      action:'Validate construction competitor set.',
+      segments:{
+        AG: { competitors:['Kramp','GRANIT Parts','Sparex','local agri distributors'], krampRank:1, status:'Defend', trend:'flat', confidence:'Low' },
+        FL: { competitors:['Kramp','GRANIT Parts','local F&L specialists'],     krampRank:1, status:'Defend',    trend:'flat', confidence:'Low' },
+        CON:{ competitors:['TVH','GRANIT Parts','Kramp','local construction specialists'], krampRank:3, status:'White space', trend:'flat', confidence:'Low' }
+      }}
+  ];
 
+  // Display labels for segment keys (segment data stores 'FL' but UI shows 'F&L')
+  var SEG_LABEL = { AG:'AG', FL:'F&L', CON:'CON' };
+  var SEG_KEYS  = ['AG','FL','CON'];
+
+  // Status visual config
+  var STATUS_COLOR = {
+    'Defend':     C.success,   // green
+    'Attack':     '#2563eb',   // blue
+    'At risk':    C.accent,    // red
+    'White space':'#7c3aed',   // purple
+    'Monitor':    C.fgMuted    // grey
+  };
+
+  // Confidence visual config (subtle)
+  var CONFIDENCE_COLOR = {
+    'High':   C.success,
+    'Medium': C.warning,
+    'Low':    C.fgMuted
+  };
+
+  // Trend glyphs
+  var TREND_GLYPH = { up:'\u2191', flat:'\u2192', down:'\u2193' };
+  var TREND_COLOR = { up:C.success, flat:C.fgMuted, down:C.accent };
+
+  var CompetitorsPage = function() {
+    var clusters = [...new Set(KRAMP_LANDSCAPE_2026.map(function(l){return l.cluster}))];
+
+    // page-scoped state: only Cluster + Country filters
+    var cs = useState('all'); var selCountry = cs[0], setSelCountry = cs[1];
+
+    // ---- Filtering --------------------------------------------------------
+    var rows = KRAMP_LANDSCAPE_2026.slice();
+    if (selCluster !== 'all') rows = rows.filter(function(r){ return r.cluster === selCluster; });
+    if (selCountry !== 'all') rows = rows.filter(function(r){ return r.country === selCountry; });
+
+    // Sort by market priority (data-defined), then alphabetical
+    rows.sort(function(a,b){
+      return (a.priority||9) - (b.priority||9) || a.country.localeCompare(b.country);
+    });
+
+    // Available countries respect cluster selection
+    var availableCountries = KRAMP_LANDSCAPE_2026
+      .filter(function(r){ return selCluster === 'all' || r.cluster === selCluster; })
+      .map(function(r){ return r.country; })
+      .sort();
+
+    // Reset country if it's not in the cluster anymore
+    if (selCountry !== 'all' && availableCountries.indexOf(selCountry) === -1) {
+      // defer to next tick so render is stable
+      setTimeout(function(){ setSelCountry('all'); }, 0);
+    }
+
+    // Filter group label
+    var filterLabel = function(text) {
+      return html`<div style=${{fontSize:'10px',fontWeight:'700',color:C.fgMuted,textTransform:'uppercase',letterSpacing:'0.08em',marginRight:'8px',alignSelf:'center'}}>${text}</div>`;
+    };
+
+    // Segment block (renders inside a country card) — competitor list only
+    var SegmentBlock = function(segKey, segData) {
+      var krampIdx = segData.krampRank - 1;
+      return html`<div key=${segKey} style=${{
+        flex:'1 1 240px', minWidth:'220px',
+        padding:'14px 16px', background:C.bg, borderRadius:'12px',
+        border:'1px solid '+C.borderLight
+      }}>
+        <div style=${{fontSize:'12px',fontWeight:'700',letterSpacing:'0.06em',color:C.fg,marginBottom:'10px'}}>
+          ${SEG_LABEL[segKey]}
+        </div>
+        ${segData.competitors.slice(0,5).map(function(name, i) {
+          var isKramp = i === krampIdx;
+          return html`<div key=${i} style=${{
+            display:'flex',alignItems:'center',gap:'8px',
+            fontSize:'12px',padding:'3px 0',
+            color: isKramp ? C.accent : C.fg,
+            fontWeight: isKramp ? '700' : '500'
+          }}>
+            <span>${name}</span>
+          </div>`;
+        })}
+      </div>`;
+    };
+
+    // ---- Render -----------------------------------------------------------
     return html`
       <div>
         <h1 style=${sTitle}>Competitor Landscape</h1>
-        <p style=${sSub}>Competitive positioning across EU markets. Kramp's position relative to competitors by country and segment.</p>
-        <div style=${{display:'flex',gap:'8px',marginBottom:'24px',flexWrap:'wrap'}}>
-          <button style=${pillBtn(selCluster==='all')} onClick=${function(){setSelCluster('all')}}>All Clusters</button>
+        <p style=${sSub}>Estimated competitive position across EU markets — three segments: AG (Agriculture), F&L (Forest, Garden & Landscaping) and CON (Construction / Small Earth-Moving). Directional ranking based on external public signals only.</p>
+
+        <!-- Subtle placeholder note -->
+        <div style=${{
+          fontSize:'12px',
+          color:C.fgMuted,
+          marginTop:'-16px',
+          marginBottom:'20px',
+          fontStyle:'italic',
+          fontWeight:'500'
+        }}>
+          Illustrative data, pending validation with local commercial teams.
+        </div>
+
+        <!-- Methodology + CON scope notes -->
+        <div style=${{
+          background:C.cardBg, borderRadius:'12px', padding:'14px 18px',
+          marginBottom:'14px', borderLeft:'3px solid '+C.fgMuted,
+          fontSize:'12px', color:C.fgSoft, lineHeight:'1.55', boxShadow:SHADOW_SM
+        }}>
+          <div style=${{fontWeight:'700',color:C.fg,marginBottom:'4px',fontSize:'12px',letterSpacing:'0.02em'}}>Methodology</div>
+          Competitive position is estimated using external public signals only: website presence, visible assortment breadth, local language availability, public company information, news mentions and market context. <strong>Rankings are directional and should be validated with local commercial teams.</strong>
+        </div>
+        <div style=${{
+          background:C.cardBg, borderRadius:'12px', padding:'12px 18px',
+          marginBottom:'24px', borderLeft:'3px solid #2563eb',
+          fontSize:'12px', color:C.fgSoft, lineHeight:'1.55', boxShadow:SHADOW_SM
+        }}>
+          <strong style=${{color:C.fg}}>CON scope:</strong> CON includes compact construction equipment such as mini excavators, telehandlers, wheel loaders and related hydraulic, engine, filter, belt, seal and sensor parts.
+        </div>
+
+        <!-- Cluster filter -->
+        <div style=${{display:'flex',gap:'8px',marginBottom:'12px',flexWrap:'wrap',alignItems:'center'}}>
+          ${filterLabel('Cluster')}
+          <button style=${pillBtn(selCluster==='all')} onClick=${function(){setSelCluster('all')}}>All</button>
           ${clusters.map(function(cl) { return html`<button key=${cl} style=${pillBtn(selCluster===cl)} onClick=${function(){setSelCluster(cl)}}>${cl}</button>`; })}
         </div>
-        ${filtered3.map(function(market) { return html`
-          <div key=${market.country} style=${{...card,marginBottom:'14px'}}>
-            <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
-              <div style=${{display:'flex',alignItems:'center',fontWeight:'700',fontSize:'16px',letterSpacing:'-0.01em'}}>
-                <${Flag} code=${market.flag} />
-                <span>${market.country} <span style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500'}}>/ ${market.cluster}</span></span>
-              </div>
-              <div style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500'}}>
-                Kramp: ${Object.entries(market.krampPos||{}).map(function(e2){return e2[0]+' #'+e2[1]}).join(' \u00B7 ')}
-              </div>
-            </div>
-            <div style=${{display:'flex',gap:'40px',flexWrap:'wrap'}}>
-              ${[{label:'AG',items:market.ag},{label:'F&L',items:market.fl},{label:'CON',items:market.con}].filter(function(g){return g.items&&g.items.length>0}).map(function(group) { return html`
-                <div key=${group.label}>
-                  <div style=${{fontSize:'11px',fontWeight:'700',color:C.fgMuted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:'6px'}}>${group.label}</div>
-                  ${group.items.map(function(c2,i) {
-                    var comp = compData.db[c2.id];
-                    var isKramp = c2.id==='kramp';
-                    return html`
-                      <div key=${c2.id||i} style=${{fontSize:'13px',padding:'4px 0',cursor:comp&&!isKramp?'pointer':'default',color:isKramp?C.accent:C.fg}} onClick=${function(){if(comp&&!isKramp) setSelComp(selComp===c2.id?null:c2.id)}}>
-                        <span style=${{color:C.fgMuted,marginRight:'6px',fontSize:'12px',fontWeight:'500'}}>${'#'+c2.rank}</span>
-                        <span style=${{fontWeight:isKramp?'700':'500'}}>${comp?comp.name:c2.id}</span>
-                        ${c2.note && html`<span style=${{fontSize:'11px',color:C.fgMuted}}> (${c2.note})</span>`}
-                      </div>
-                    `;
-                  })}
-                </div>
-              `; })}
-            </div>
-            ${selComp && market.ag.concat(market.fl||[]).concat(market.con||[]).some(function(c2){return c2.id===selComp}) && (function() {
-              var comp = compData.db[selComp];
-              var news = compData.news[selComp] || [];
-              if(!comp) return null;
-              return html`
-                <div style=${{marginTop:'16px',padding:'20px',background:C.bg,borderRadius:'12px',borderLeft:'3px solid '+C.accent}}>
-                  <div style=${{fontWeight:'700',fontSize:'14px',marginBottom:'4px'}}>${comp.name}</div>
-                  <div style=${{fontSize:'12px',color:C.fgMuted,marginBottom:'8px',fontWeight:'500'}}>${comp.hq} \u00B7 ${comp.segments.join(', ')} \u00B7 ${comp.type}</div>
-                  <div style=${{fontSize:'13px',color:C.fgSoft,lineHeight:'1.6',marginBottom:'12px'}}>${comp.desc}</div>
-                  ${news.length>0 && html`
-                    <div style=${{fontSize:'12px',fontWeight:'700',marginBottom:'6px'}}>Recent News</div>
-                    ${news.slice(0,3).map(function(n,i) { return html`
-                      <div key=${i} style=${{fontSize:'12px',padding:'4px 0',color:C.fgSoft}}>
-                        <a href=${n.url} target="_blank" rel="noopener" style=${{color:C.link,textDecoration:'none',fontWeight:'600'}}>${n.title} \u2197</a>
-                        <span style=${{color:C.fgMuted,marginLeft:'8px'}}>${n.date}</span>
-                      </div>
-                    `; })}
-                  `}
-                </div>
-              `;
-            })()}
+
+        <!-- Country filter -->
+        <div style=${{display:'flex',gap:'8px',marginBottom:'24px',flexWrap:'wrap',alignItems:'center'}}>
+          ${filterLabel('Country')}
+          <button style=${pillBtn(selCountry==='all')} onClick=${function(){setSelCountry('all')}}>All</button>
+          ${availableCountries.map(function(co) { return html`<button key=${co} style=${pillBtn(selCountry===co)} onClick=${function(){setSelCountry(co)}}>${co}</button>`; })}
+        </div>
+
+        <div style=${{fontSize:'12px',color:C.fgMuted,marginBottom:'14px',fontWeight:'500'}}>
+          Showing ${rows.length} of ${KRAMP_LANDSCAPE_2026.length} countries
+        </div>
+
+        ${rows.length === 0 && html`
+          <div style=${{...card,textAlign:'center',color:C.fgMuted,padding:'40px'}}>
+            No countries match the current filters.
           </div>
-        `; })}
+        `}
+
+        ${rows.map(function(market) {
+          return html`
+            <div key=${market.country} style=${{...card, marginBottom:'14px'}}>
+              <div style=${{display:'flex',alignItems:'center',marginBottom:'14px',fontWeight:'700',fontSize:'16px',letterSpacing:'-0.01em'}}>
+                <${Flag} code=${market.flag} />
+                <span>${market.country}
+                  <span style=${{fontSize:'12px',color:C.fgMuted,fontWeight:'500',marginLeft:'4px'}}>/ ${market.cluster}</span>
+                </span>
+              </div>
+
+              <div style=${{display:'flex',gap:'12px',flexWrap:'wrap'}}>
+                ${SEG_KEYS.filter(function(k){return market.segments[k]}).map(function(k){
+                  return SegmentBlock(k, market.segments[k]);
+                })}
+              </div>
+            </div>
+          `;
+        })}
       </div>
     `;
   };
