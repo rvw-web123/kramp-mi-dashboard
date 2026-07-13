@@ -1,0 +1,1283 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "updated": "2026-07-10",
+    "description": "Configuration for the Kramp Market Intelligence news feed. All scoring, keywords, source metadata and thresholds live here. Edit and the API will hot-reload on next fetch (12h cache).",
+    "docs": "See FEED_CONFIG_GUIDE.md for tuning notes."
+  },
+  "thresholds": {
+    "min_score_visible": 60,
+    "min_score_latest_signals": 55,
+    "min_score_market_pulse": 65,
+    "min_score_must_reads": 75,
+    "days_latest_signals": 14,
+    "days_market_pulse": 45,
+    "days_must_reads": 180,
+    "cluster_similarity": 0.55,
+    "dedupe_title_similarity": 0.85
+  },
+  "scoring_weights": {
+    "latest_signals": {
+      "source": 0.2,
+      "industry": 0.15,
+      "country": 0.1,
+      "article_type": 0.15,
+      "strategic": 0.2,
+      "recency": 0.2
+    },
+    "market_pulse": {
+      "source": 0.25,
+      "industry": 0.2,
+      "country": 0.15,
+      "article_type": 0.15,
+      "strategic": 0.15,
+      "recency": 0.1
+    },
+    "must_reads": {
+      "source": 0.3,
+      "industry": 0.2,
+      "country": 0.1,
+      "article_type": 0.2,
+      "strategic": 0.15,
+      "recency": 0.05
+    }
+  },
+  "article_type_scores": {
+    "data_release": 95,
+    "association_report": 92,
+    "market_report": 90,
+    "oem_financial_result": 88,
+    "regulation_policy": 82,
+    "macroeconomic_update": 80,
+    "weather_crop_update": 75,
+    "competitor_news": 72,
+    "supplier_news": 68,
+    "trade_media_article": 55,
+    "product_launch": 40,
+    "event_announcement": 25,
+    "generic_press_release": 20
+  },
+  "article_type_shelf_life_days": {
+    "data_release": 180,
+    "association_report": 180,
+    "market_report": 180,
+    "oem_financial_result": 120,
+    "regulation_policy": 365,
+    "macroeconomic_update": 90,
+    "weather_crop_update": 30,
+    "competitor_news": 60,
+    "supplier_news": 60,
+    "trade_media_article": 21,
+    "product_launch": 14,
+    "event_announcement": 7,
+    "generic_press_release": 3
+  },
+  "country_groups": {
+    "Netherlands": {
+      "members": [
+        "Netherlands"
+      ],
+      "region": "Benelux",
+      "flag": "nl"
+    },
+    "Belgium": {
+      "members": [
+        "Belgium"
+      ],
+      "region": "Benelux",
+      "flag": "be"
+    },
+    "Luxembourg": {
+      "members": [
+        "Luxembourg"
+      ],
+      "region": "Benelux",
+      "flag": "lu"
+    },
+    "Germany": {
+      "members": [
+        "Germany"
+      ],
+      "region": "DACH",
+      "flag": "de"
+    },
+    "Austria": {
+      "members": [
+        "Austria"
+      ],
+      "region": "DACH",
+      "flag": "at"
+    },
+    "Switzerland": {
+      "members": [
+        "Switzerland"
+      ],
+      "region": "DACH",
+      "flag": "ch"
+    },
+    "France": {
+      "members": [
+        "France"
+      ],
+      "region": "West",
+      "flag": "fr"
+    },
+    "UK": {
+      "members": [
+        "UK"
+      ],
+      "region": "British Isles",
+      "flag": "gb"
+    },
+    "Ireland": {
+      "members": [
+        "Ireland"
+      ],
+      "region": "British Isles",
+      "flag": "ie"
+    },
+    "Italy": {
+      "members": [
+        "Italy"
+      ],
+      "region": "South",
+      "flag": "it"
+    },
+    "Spain": {
+      "members": [
+        "Spain"
+      ],
+      "region": "South",
+      "flag": "es"
+    },
+    "Portugal": {
+      "members": [
+        "Portugal"
+      ],
+      "region": "South",
+      "flag": "pt"
+    },
+    "Poland": {
+      "members": [
+        "Poland"
+      ],
+      "region": "CEE",
+      "flag": "pl"
+    },
+    "Czech Republic": {
+      "members": [
+        "Czech Republic"
+      ],
+      "region": "CEE",
+      "flag": "cz"
+    },
+    "Hungary": {
+      "members": [
+        "Hungary"
+      ],
+      "region": "CEE",
+      "flag": "hu"
+    },
+    "Romania": {
+      "members": [
+        "Romania"
+      ],
+      "region": "CEE",
+      "flag": "ro"
+    },
+    "Slovakia": {
+      "members": [
+        "Slovakia"
+      ],
+      "region": "CEE",
+      "flag": "sk"
+    },
+    "Bulgaria": {
+      "members": [
+        "Bulgaria"
+      ],
+      "region": "CEE",
+      "flag": "bg"
+    },
+    "Sweden": {
+      "members": [
+        "Sweden"
+      ],
+      "region": "Nordics",
+      "flag": "se"
+    },
+    "Norway": {
+      "members": [
+        "Norway"
+      ],
+      "region": "Nordics",
+      "flag": "no"
+    },
+    "Denmark": {
+      "members": [
+        "Denmark"
+      ],
+      "region": "Nordics",
+      "flag": "dk"
+    },
+    "Finland": {
+      "members": [
+        "Finland"
+      ],
+      "region": "Nordics",
+      "flag": "fi"
+    },
+    "Ukraine": {
+      "members": [
+        "Ukraine"
+      ],
+      "region": "CEE",
+      "flag": "ua"
+    },
+    "EU-wide": {
+      "members": [
+        "EU-wide",
+        "EU"
+      ],
+      "region": "EU",
+      "flag": "eu"
+    },
+    "Global": {
+      "members": [
+        "Global"
+      ],
+      "region": "Global",
+      "flag": "un"
+    }
+  },
+  "country_regions": {
+    "Benelux": [
+      "Netherlands",
+      "Belgium",
+      "Luxembourg"
+    ],
+    "DACH": [
+      "Germany",
+      "Austria",
+      "Switzerland"
+    ],
+    "Nordics": [
+      "Sweden",
+      "Norway",
+      "Denmark",
+      "Finland"
+    ],
+    "CEE": [
+      "Poland",
+      "Czech Republic",
+      "Hungary",
+      "Romania",
+      "Slovakia",
+      "Bulgaria",
+      "Ukraine"
+    ],
+    "British Isles": [
+      "UK",
+      "Ireland"
+    ],
+    "South": [
+      "Italy",
+      "Spain",
+      "Portugal"
+    ],
+    "West": [
+      "France"
+    ],
+    "EU": [
+      "EU-wide"
+    ]
+  },
+  "eu_wide_bleeds_to_countries": [
+    "Netherlands",
+    "Germany",
+    "France",
+    "UK",
+    "Ireland",
+    "Italy",
+    "Spain",
+    "Poland",
+    "Belgium",
+    "Sweden",
+    "Denmark",
+    "Austria"
+  ],
+  "industries": [
+    "agriculture",
+    "construction",
+    "forest_landscaping",
+    "macro",
+    "competitors",
+    "suppliers",
+    "regulation",
+    "events"
+  ],
+  "industry_keywords": {
+    "agriculture": [
+      "tractor",
+      "tractors",
+      "combine",
+      "harvester",
+      "farming",
+      "farm",
+      "farmer",
+      "farmers",
+      "agriculture",
+      "agricultural",
+      "agri",
+      "agtech",
+      "crop",
+      "crops",
+      "cereal",
+      "cereals",
+      "wheat",
+      "corn",
+      "maize",
+      "barley",
+      "sugar beet",
+      "potato",
+      "potatoes",
+      "dairy",
+      "livestock",
+      "cattle",
+      "pig",
+      "poultry",
+      "cema",
+      "axema",
+      "vdma",
+      "fedecom",
+      "teagasc",
+      "bord bia",
+      "defra",
+      "nfu",
+      "franceagrimer",
+      "federunacoma",
+      "ansemat",
+      "danish agro",
+      "dlg",
+      "husqvarna",
+      "cap ",
+      "common agricultural policy",
+      "agricultural policy",
+      "agricultural machinery",
+      "farm income",
+      "farmer confidence",
+      "farmer sentiment",
+      "harvest",
+      "planting",
+      "sowing",
+      "irrigation",
+      "fertiliser",
+      "fertilizer",
+      "pesticide",
+      "herbicide",
+      "seed",
+      "seeds",
+      "agco",
+      "john deere",
+      "new holland",
+      "case ih",
+      "fendt",
+      "massey ferguson",
+      "valtra",
+      "claas",
+      "kubota",
+      "kuhn",
+      "krone",
+      "milking",
+      "feed",
+      "silage",
+      "grain",
+      "dairy margin"
+    ],
+    "construction": [
+      "construction",
+      "builder",
+      "builders",
+      "building site",
+      "excavator",
+      "excavators",
+      "mini excavator",
+      "telehandler",
+      "wheel loader",
+      "skid steer",
+      "backhoe",
+      "dumper",
+      "compact equipment",
+      "earth-moving",
+      "earthmoving",
+      "earth moving",
+      "cece",
+      "building permits",
+      "construction output",
+      "housebuilding",
+      "housebuilder",
+      "infrastructure",
+      "road works",
+      "rental fleet",
+      "plant hire",
+      "jcb",
+      "liebherr",
+      "caterpillar",
+      "volvo ce",
+      "komatsu",
+      "bobcat",
+      "hitachi construction",
+      "hyundai construction",
+      "pmi construction",
+      "construction pmi",
+      "site accident",
+      "construction site"
+    ],
+    "forest_landscaping": [
+      "landscaping",
+      "landscaper",
+      "garden",
+      "gardening",
+      "groundscare",
+      "forestry",
+      "forest",
+      "forester",
+      "chainsaw",
+      "hedge trimmer",
+      "brush cutter",
+      "leaf blower",
+      "robot mower",
+      "robotic mower",
+      "lawn mower",
+      "lawnmower",
+      "mower",
+      "strimmer",
+      "outdoor power equipment",
+      "opel",
+      "opeq",
+      "egmf",
+      "municipal green",
+      "arboriculture",
+      "tree surgeon",
+      "pro landscaper",
+      "landscape contractor",
+      "turf",
+      "greenkeeper",
+      "greenkeeping",
+      "ponsse",
+      "stihl"
+    ],
+    "macro": [
+      "interest rate",
+      "interest rates",
+      "ecb",
+      "european central bank",
+      "inflation",
+      "recession",
+      "gdp",
+      "gdp growth",
+      "pmi",
+      "purchasing managers",
+      "fuel price",
+      "fuel prices",
+      "diesel",
+      "energy price",
+      "electricity price",
+      "natural gas",
+      "supply chain",
+      "freight",
+      "container",
+      "logistics",
+      "exchange rate",
+      "euro",
+      "tariff",
+      "tariffs",
+      "trade war",
+      "sanctions",
+      "ukraine",
+      "russia",
+      "china exports",
+      "climate policy",
+      "emissions",
+      "green deal",
+      "co2",
+      "carbon",
+      "electrification",
+      "battery",
+      "hydrogen",
+      "labour cost",
+      "labour costs",
+      "wage",
+      "wages"
+    ],
+    "competitors": [
+      "kramp",
+      "granit",
+      "agriparts",
+      "agridirect",
+      "tvh",
+      "spare parts wholesale",
+      "aftermarket distributor",
+      "distribution deal"
+    ],
+    "suppliers": [
+      "gates",
+      "skf",
+      "sks",
+      "stauff",
+      "hydac",
+      "parker",
+      "bondioli",
+      "walterscheid",
+      "rexroth",
+      "danfoss",
+      "bosch rexroth",
+      "kongskilde",
+      "kramp",
+      "component shortage",
+      "semiconductor",
+      "rubber",
+      "hydraulics",
+      "bearings",
+      "chain",
+      "belt",
+      "filter",
+      "filters"
+    ],
+    "regulation": [
+      "regulation",
+      "directive",
+      "stage v",
+      "emissions regulation",
+      "tier 5",
+      "safety standard",
+      "iso ",
+      "ce marking",
+      "reach",
+      "rohs",
+      "carbon border",
+      "cbam",
+      "spare parts directive",
+      "right to repair",
+      "competition authority",
+      "antitrust"
+    ],
+    "events": [
+      "agritechnica",
+      "sima",
+      "eima",
+      "fima",
+      "interpom",
+      "smopyc",
+      "conexpo",
+      "bauma",
+      "intermat",
+      "spoga",
+      "gala",
+      "salt",
+      "fps",
+      "dlg feldtage",
+      "cereals event",
+      "royal highland show",
+      "potato europe",
+      "exhibition",
+      "trade fair",
+      "trade show",
+      "conference",
+      "summit"
+    ]
+  },
+  "strategic_signal_keywords": {
+    "high_value": [
+      "machinery registrations",
+      "tractor registrations",
+      "business barometer",
+      "farmer confidence",
+      "farmer sentiment",
+      "dealer inventory",
+      "used machinery",
+      "farm income",
+      "order intake",
+      "order backlog",
+      "quarterly results",
+      "full-year results",
+      "annual results",
+      "earnings",
+      "revenue guidance",
+      "profit warning",
+      "market outlook",
+      "market forecast",
+      "market report",
+      "industry outlook",
+      "aftermarket revenue",
+      "spare parts revenue",
+      "parts availability",
+      "supply chain disruption",
+      "interest rate decision",
+      "rate hike",
+      "rate cut",
+      "stage v",
+      "cap reform",
+      "emissions standard",
+      "carbon border",
+      "building permits",
+      "construction output",
+      "construction pmi",
+      "cece",
+      "cema",
+      "egmf",
+      "eurostat",
+      "ecb",
+      "fao",
+      "ifip",
+      "cma-cgm",
+      "aftersales"
+    ],
+    "medium_value": [
+      "acquisition",
+      "merger",
+      "joint venture",
+      "partnership",
+      "distribution agreement",
+      "new dealer",
+      "new distributor",
+      "plant closure",
+      "factory",
+      "production capacity",
+      "expansion",
+      "investment",
+      "funding round",
+      "price increase",
+      "price rise",
+      "tariff",
+      "strike",
+      "recall",
+      "drought",
+      "flooding",
+      "harvest",
+      "yield",
+      "crop conditions",
+      "fertiliser price",
+      "fuel price",
+      "dairy price",
+      "grain price"
+    ],
+    "noise_indicators": [
+      "sponsor",
+      "sponsorship",
+      "charity",
+      "award",
+      "awards",
+      "donation",
+      "appointed",
+      "joins board",
+      "new hire",
+      "promotion",
+      "obituary",
+      "birthday",
+      "anniversary",
+      "wins prize",
+      "best of",
+      "top 10",
+      "top 100",
+      "photo gallery",
+      "picture gallery",
+      "weekly roundup",
+      "podcast",
+      "webinar registration",
+      "download brochure",
+      "free trial",
+      "conference call",
+      "earnings release",
+      "to present at",
+      "dividend",
+      "annual meeting",
+      "proxy statement",
+      "legacies of the land",
+      "speech",
+      "interview",
+      "lecture",
+      "panel discussion",
+      "keynote",
+      "opening remarks",
+      "closing remarks",
+      "fireside chat",
+      "lane:",
+      "lagarde:",
+      "cipollone:",
+      "elderson:",
+      "schnabel:",
+      "operational calendars",
+      "wins award",
+      "shortlisted",
+      "winners revealed",
+      "project awards",
+      "celebrates",
+      "celebration",
+      "sued",
+      "lawsuit",
+      "court case",
+      "fined",
+      "fine over",
+      "dies",
+      "died",
+      "injured",
+      "fatal",
+      "accident",
+      "top price",
+      "top prize",
+      "opinion",
+      "comment",
+      "column",
+      "letter to editor",
+      "obituary"
+    ]
+  },
+  "kramp_relevance_categories": [
+    "spare_parts_demand",
+    "wear_parts_demand",
+    "dealer_purchasing",
+    "farmer_investment",
+    "machine_utilisation",
+    "new_registrations",
+    "installed_base",
+    "inventory_pressure",
+    "aftermarket_opportunity",
+    "supplier_risk",
+    "pricing_pressure",
+    "market_expansion",
+    "country_risk"
+  ],
+  "why_it_matters_templates": {
+    "data_release+agriculture": "Machinery registration data drives Kramp's medium-term spare-parts demand model. Direction of new registrations sets the trajectory for the installed base 2-4 years out; downturns increase aftermarket share of dealer revenue and lift wear-part demand as farmers extend fleet life.",
+    "association_report+agriculture": "Association barometers (CEMA/national) are the most reliable leading indicator of dealer purchasing intent 2 quarters ahead. Kramp order intake historically tracks these with a ~1-quarter lag.",
+    "oem_financial_result+agriculture": "OEM quarterly results reveal channel inventory, dealer health and outlook \u2014 the same dealers Kramp sells to. Guidance downgrades typically signal aftermarket share gains for Kramp within 6 months.",
+    "weather_crop_update+agriculture": "Weather and crop conditions drive farmer cash-flow and short-term maintenance decisions. Drought/flood events lift wear-part demand (breakdowns) but suppress new-machine investment.",
+    "regulation_policy+agriculture": "Regulatory changes reshape farmer economics and equipment purchase timing. Stage V, CAP, and emissions rules affect which machines dealers order, and therefore which parts Kramp must stock.",
+    "macroeconomic_update+macro": "Interest-rate and input-cost changes directly hit farmer investment capacity. Lower rates + stable fuel = new-machine purchases; higher rates + volatile fuel = deferred capex and higher parts/repair spend (Kramp positive).",
+    "data_release+construction": "Construction equipment demand tracks building permits and PMI with a 1-2 quarter lag. Kramp's construction/small earth-moving assortment is exposed to compact-equipment dealer inventory.",
+    "association_report+construction": "CECE reports set the benchmark for construction equipment sales expectations and directly inform Kramp's construction-segment stocking decisions.",
+    "competitor_news+competitors": "Competitor moves in Kramp's channel (new dealer wins, geographic expansion, category launches) require pricing and assortment response, especially in Benelux/DACH/UK home markets.",
+    "supplier_news+suppliers": "Supplier availability, pricing and category-range decisions flow directly into Kramp's stocked SKU strategy and margin.",
+    "data_release+forest_landscaping": "EGMF and outdoor-power-equipment data determine the F&L segment growth assumption. Battery/robotic mower penetration reshapes the wear-part mix (blades, batteries) Kramp must carry.",
+    "regulation_policy+construction": "Emissions and safety regulation (Stage V, CE) forces fleet renewal cycles which cascade into spare-part specs and dealer stocking. Kramp assortment must track homologation windows.",
+    "regulation_policy+macro": "EU-level policy (CBAM, right-to-repair, spare-parts directive) affects Kramp's cross-border business economics and independent-channel positioning vs OEM captive parts.",
+    "default": "Signal is relevant to Kramp's commercial planning; review for aftermarket, pricing, assortment or country-strategy implications."
+  },
+  "sources": [
+    {
+      "name": "CEMA Business Barometer",
+      "rss_url": null,
+      "homepage_url": "https://www.cema-agri.org/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture",
+        "macro"
+      ],
+      "default_countries": [
+        "EU-wide"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Monthly barometer of European agricultural machinery industry sentiment. Leading indicator for dealer purchasing."
+    },
+    {
+      "name": "CEMA Registrations",
+      "rss_url": null,
+      "homepage_url": "https://www.cema-agri.org/market-trends",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "EU-wide"
+      ],
+      "source_type": "data_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Monthly EU tractor registration data by country. Core dataset for machinery demand."
+    },
+    {
+      "name": "CECE Economic Report",
+      "rss_url": null,
+      "homepage_url": "https://www.cece.eu/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "construction"
+      ],
+      "default_countries": [
+        "EU-wide"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "quarterly",
+      "watch_method": "web_monitoring",
+      "notes": "Construction equipment industry barometer + annual economic report."
+    },
+    {
+      "name": "EGMF Market Survey",
+      "rss_url": null,
+      "homepage_url": "https://www.egmf.org/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "forest_landscaping"
+      ],
+      "default_countries": [
+        "EU-wide"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "annually",
+      "watch_method": "web_monitoring",
+      "notes": "Annual outdoor power equipment / garden machinery market survey."
+    },
+    {
+      "name": "Eurostat Building Permits (sts_cobp_a)",
+      "rss_url": null,
+      "homepage_url": "https://ec.europa.eu/eurostat/databrowser/view/sts_cobp_a/default/table",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "construction"
+      ],
+      "default_countries": [
+        "EU-wide",
+        "Netherlands",
+        "Germany",
+        "France",
+        "Italy",
+        "Spain",
+        "Poland",
+        "Belgium"
+      ],
+      "source_type": "data_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "api",
+      "notes": "Building permits dataset (already integrated as live chart)."
+    },
+    {
+      "name": "ECB Monetary Policy Decisions",
+      "rss_url": "https://www.ecb.europa.eu/rss/press.html",
+      "homepage_url": "https://www.ecb.europa.eu/press/pr/date/2026/html/index.en.html",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "macro"
+      ],
+      "default_countries": [
+        "EU-wide"
+      ],
+      "source_type": "macroeconomic_update",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "6-weekly",
+      "watch_method": "rss",
+      "notes": "ECB rate decisions and monetary policy statements. Direct impact on farmer capex financing."
+    },
+    {
+      "name": "FAO Food Price Index",
+      "rss_url": null,
+      "homepage_url": "https://www.fao.org/worldfoodsituation/foodpricesindex/en/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture",
+        "macro"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "data_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Monthly global commodity price index. Directional signal for farm income."
+    },
+    {
+      "name": "AGCO Investor News",
+      "rss_url": "https://investors.agcocorp.com/rss.xml",
+      "homepage_url": "https://investors.agcocorp.com/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture",
+        "competitors"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "generic_press_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "as-needed",
+      "watch_method": "rss",
+      "notes": "AGCO IR feed. Quarterly results = leading indicator for dealer inventory + guidance."
+    },
+    {
+      "name": "Deere & Company Press Room",
+      "rss_url": "https://www.deere.com/en/news/rss/",
+      "homepage_url": "https://www.deere.com/en/news/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture",
+        "construction",
+        "competitors"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "generic_press_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "as-needed",
+      "watch_method": "rss",
+      "notes": "John Deere corporate news. Ag + construction OEM."
+    },
+    {
+      "name": "CNH Industrial Press",
+      "rss_url": null,
+      "homepage_url": "https://www.cnhindustrial.com/en-us/media/press_releases/Pages/default.aspx",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture",
+        "construction"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "generic_press_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "as-needed",
+      "watch_method": "web_monitoring",
+      "notes": "CNH Industrial (Case IH, New Holland, STEYR). RSS not available."
+    },
+    {
+      "name": "Kubota Global News",
+      "rss_url": null,
+      "homepage_url": "https://www.kubota.com/news/",
+      "source_tier": 2,
+      "source_reliability": 4,
+      "default_industries": [
+        "agriculture",
+        "construction"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "generic_press_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Kubota corporate news. Growing compact-equipment player in EU."
+    },
+    {
+      "name": "CLAAS Press Room",
+      "rss_url": null,
+      "homepage_url": "https://www.claas-group.com/press-corporate",
+      "source_tier": 2,
+      "source_reliability": 4,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Germany",
+        "EU-wide"
+      ],
+      "source_type": "generic_press_release",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "German OEM. Strong Kramp market."
+    },
+    {
+      "name": "SDLG / Volvo CE Press",
+      "rss_url": null,
+      "homepage_url": "https://www.volvoce.com/global/en/news-and-events/press-releases/",
+      "source_tier": 2,
+      "source_reliability": 4,
+      "default_industries": [
+        "construction"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "generic_press_release",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Volvo Construction Equipment."
+    },
+    {
+      "name": "Agriland",
+      "rss_url": "https://www.agriland.ie/feed/",
+      "homepage_url": "https://www.agriland.ie/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Ireland",
+        "UK"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "Irish agricultural trade media."
+    },
+    {
+      "name": "FarmingUK",
+      "rss_url": "https://www.farminguk.com/rss/news",
+      "homepage_url": "https://www.farminguk.com/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "UK"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "UK farming trade media."
+    },
+    {
+      "name": "FutureFarming",
+      "rss_url": "https://www.futurefarming.com/feed/",
+      "homepage_url": "https://www.futurefarming.com/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "EU-wide",
+        "Netherlands"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "Dutch-origin ag media, EU coverage."
+    },
+    {
+      "name": "Global AgTech Initiative",
+      "rss_url": "https://www.globalagtechinitiative.com/feed/",
+      "homepage_url": "https://www.globalagtechinitiative.com/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "AgTech coverage \u2014 precision ag, robotics, digital tools."
+    },
+    {
+      "name": "Construction Enquirer",
+      "rss_url": "https://www.constructionenquirer.com/feed/",
+      "homepage_url": "https://www.constructionenquirer.com/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "construction"
+      ],
+      "default_countries": [
+        "UK"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "UK construction trade media."
+    },
+    {
+      "name": "Construction News",
+      "rss_url": "https://www.constructionnews.co.uk/feed/",
+      "homepage_url": "https://www.constructionnews.co.uk/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "construction"
+      ],
+      "default_countries": [
+        "UK"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "UK construction trade media."
+    },
+    {
+      "name": "The Construction Index",
+      "rss_url": "https://www.theconstructionindex.co.uk/news/rss",
+      "homepage_url": "https://www.theconstructionindex.co.uk/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "construction"
+      ],
+      "default_countries": [
+        "UK"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "UK construction news."
+    },
+    {
+      "name": "Pro Landscaper",
+      "rss_url": "https://www.prolandscapermagazine.com/feed/",
+      "homepage_url": "https://www.prolandscapermagazine.com/",
+      "source_tier": 2,
+      "source_reliability": 3,
+      "default_industries": [
+        "forest_landscaping"
+      ],
+      "default_countries": [
+        "UK"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "UK professional landscaping media."
+    },
+    {
+      "name": "VDMA Agricultural Machinery",
+      "rss_url": null,
+      "homepage_url": "https://www.vdma.org/landtechnik",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Germany"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "German mechanical engineering association \u2014 agricultural machinery division."
+    },
+    {
+      "name": "AXEMA (France)",
+      "rss_url": null,
+      "homepage_url": "https://www.axema.fr/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "France"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "quarterly",
+      "watch_method": "web_monitoring",
+      "notes": "French agricultural machinery association."
+    },
+    {
+      "name": "FederUnacoma (Italy)",
+      "rss_url": null,
+      "homepage_url": "https://www.federunacoma.it/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Italy"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "quarterly",
+      "watch_method": "web_monitoring",
+      "notes": "Italian agricultural machinery federation."
+    },
+    {
+      "name": "Fedecom (Netherlands)",
+      "rss_url": null,
+      "homepage_url": "https://www.fedecom.nl/",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture",
+        "construction",
+        "forest_landscaping"
+      ],
+      "default_countries": [
+        "Netherlands"
+      ],
+      "source_type": "association_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Dutch federation of construction, ag and green machinery importers/dealers. Kramp home market."
+    },
+    {
+      "name": "Trimble Ag / Sensor News",
+      "rss_url": null,
+      "homepage_url": "https://agriculture.trimble.com/news/",
+      "source_tier": 2,
+      "source_reliability": 4,
+      "default_industries": [
+        "agriculture",
+        "suppliers"
+      ],
+      "default_countries": [
+        "Global"
+      ],
+      "source_type": "supplier_news",
+      "must_monitor": false,
+      "active": false,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Precision ag component supplier."
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "_description": "Canonical test cases showing how articles of each type should be classified and where they should land. Use these to sanity-check config changes.",
+  "cases": [
+    {
+      "name": "CEMA Business Barometer publication",
+      "input": {
+        "title": "CEMA Business Barometer: European agricultural machinery industry sentiment at 3-year low",
+        "description": "The June CEMA Business Barometer shows the European agricultural machinery industry business climate index dropped to -18, its lowest reading since 2023, with tractor registrations down across all major markets.",
+        "source": "CEMA Business Barometer",
+        "published_date_days_ago": 5
+      },
+      "expected": {
+        "article_type": "association_report",
+        "recommended_section": "six_month_must_read",
+        "detected_industries": ["agriculture", "macro"],
+        "detected_countries": ["EU-wide"],
+        "relevance_score_min": 85,
+        "strategic_hits_include": ["business barometer", "cema"]
+      },
+      "why": "Tier-1 association report + high-value strategic keywords + fresh + EU-wide → top of Must-Reads."
+    },
+    {
+      "name": "AGCO Q2 earnings release",
+      "input": {
+        "title": "AGCO Reports Second-Quarter 2026 Results",
+        "description": "AGCO reported Q2 2026 revenue of $2.4B, down 12% YoY, with dealer inventory levels remaining elevated. Full-year guidance revised downward due to slower North American demand.",
+        "source": "AGCO Investor News",
+        "published_date_days_ago": 3
+      },
+      "expected": {
+        "article_type": "oem_financial_result",
+        "recommended_section": "six_month_must_read",
+        "detected_industries": ["agriculture", "competitors"],
+        "detected_countries": ["Global"],
+        "relevance_score_min": 80,
+        "strategic_hits_include": ["quarterly results", "dealer inventory", "guidance"]
+      },
+      "why": "Tier-1 OEM IR feed + quarterly results + strategic keywords → Must-Reads."
+    },
+    {
+      "name": "ECB rate decision",
+      "input": {
+        "title": "ECB Governing Council decides to keep rates unchanged at 3.00%",
+        "description": "The Governing Council of the European Central Bank today decided to keep the three key ECB interest rates unchanged. Monetary policy remains restrictive to ensure inflation returns sustainably to 2%.",
+        "source": "ECB Monetary Policy Decisions",
+        "published_date_days_ago": 2
+      },
+      "expected": {
+        "article_type": "macroeconomic_update",
+        "recommended_section": "market_pulse",
+        "detected_industries": ["macro"],
+        "detected_countries": ["EU-wide"],
+        "relevance_score_min": 75,
+        "strategic_hits_include": ["interest rate", "ecb"]
+      },
+      "why": "Tier-1 macro update. Not a `data_release` or `association_report`, so it lands in Market Pulse, not Must-Reads. Bleeds into all EU country filters."
+    },
+    {
+      "name": "UK construction daily news",
+      "input": {
+        "title": "Worker dies in fall on Mayfair site",
+        "description": "Air ambulance arrives but worker pronounced dead at scene yesterday.",
+        "source": "Construction Enquirer",
+        "published_date_days_ago": 1
+      },
+      "expected": {
+        "article_type": "trade_media_article",
+        "recommended_section": "latest_signals",
+        "detected_industries": ["construction"],
+        "detected_countries": ["UK"],
+        "relevance_score_max": 65
+      },
+      "why": "Trade media, not strategic. Fresh enough for Latest Signals but wouldn't stay long — 21-day shelf life for trade media."
+    },
+    {
+      "name": "Generic sponsorship / awards news",
+      "input": {
+        "title": "Pro Landscaper celebrates this year's Project Awards winners",
+        "description": "The Pro Landscaper Project Awards 2026 winners have been announced during a ceremony within the Summer Spectacular event.",
+        "source": "Pro Landscaper",
+        "published_date_days_ago": 1
+      },
+      "expected": {
+        "article_type": "event_announcement",
+        "recommended_section": "archive_only",
+        "detected_industries": ["forest_landscaping", "events"],
+        "detected_countries": ["UK"],
+        "relevance_score_max": 55,
+        "strategic_hits_include_noise": ["awards", "winners"]
+      },
+      "why": "Awards ceremony → event_announcement type (base score 25) + noise indicators penalty → archive only."
+    },
+    {
+      "name": "Stage V regulation update",
+      "input": {
+        "title": "European Commission proposes Stage VI emissions standard for non-road mobile machinery",
+        "description": "The European Commission today published a proposal for a new Stage VI emissions standard covering non-road mobile machinery, including agricultural and construction equipment. Full compliance would be required by 2030.",
+        "source": "European Commission",
+        "source_tier_override": 1,
+        "published_date_days_ago": 60
+      },
+      "expected": {
+        "article_type": "regulation_policy",
+        "recommended_section": "six_month_must_read",
+        "detected_industries": ["agriculture", "construction", "regulation"],
+        "detected_countries": ["EU-wide"],
+        "relevance_score_min": 80,
+        "strategic_hits_include": ["stage v", "emissions standard"]
+      },
+      "why": "Regulation policy has 365-day shelf life. Even at 60 days, recency score ~83. Perfect Must-Read candidate."
+    },
+    {
+      "name": "Local farmer sale price",
+      "input": {
+        "title": "Top price of €16,200 at Breeder's Dream Sale",
+        "description": "A pedigree bull sold for €16,200 at yesterday's Breeder's Dream Sale, marking the year's highest price for the breed at the Roscommon venue.",
+        "source": "Agriland",
+        "published_date_days_ago": 1
+      },
+      "expected": {
+        "article_type": "trade_media_article",
+        "recommended_section": "latest_signals",
+        "detected_industries": ["agriculture"],
+        "detected_countries": ["Ireland"],
+        "relevance_score_max": 60
+      },
+      "why": "Local farming trade news. Not strategic for Kramp. Should drop to Latest Signals or Archive quickly."
+    },
+    {
+      "name": "Competitor acquires distributor",
+      "input": {
+        "title": "Granit Parts acquires Nordic aftermarket distributor NordicAg",
+        "description": "German spare parts wholesaler Granit Parts today announced the acquisition of Danish aftermarket distributor NordicAg for €80M, expanding its Nordic footprint.",
+        "source": "Trade media",
+        "source_tier_override": 2,
+        "published_date_days_ago": 10
+      },
+      "expected": {
+        "article_type": "competitor_news",
+        "recommended_section": "market_pulse",
+        "detected_industries": ["agriculture", "competitors"],
+        "detected_countries": ["Germany", "Denmark"],
+        "relevance_score_min": 70,
+        "strategic_hits_include": ["acquisition"]
+      },
+      "why": "Competitor news + strategic acquisition + fresh → high Market Pulse. 60-day shelf life keeps it visible for two months."
+    },
+    {
+      "name": "Old data release still relevant",
+      "input": {
+        "title": "CEMA publishes Q1 2026 EU tractor registration data",
+        "description": "CEMA today published quarterly tractor registration data showing EU-27 tractor sales down 8% YoY in Q1 2026, led by weakness in France (-15%) and Germany (-11%).",
+        "source": "CEMA Registrations",
+        "published_date_days_ago": 90
+      },
+      "expected": {
+        "article_type": "data_release",
+        "recommended_section": "six_month_must_read",
+        "detected_industries": ["agriculture"],
+        "detected_countries": ["EU-wide"],
+        "relevance_score_min": 75
+      },
+      "why": "Data release has 180-day shelf life. Even at 90 days, recency ≈ 50 but source (95) + article type (95) + strategic hits dominate → still Must-Read."
+    }
+  ],
+  "how_to_use": "These cases document expected behaviour. When you tune config, spot-check the live API output for items matching these patterns and confirm they land in the expected section with the expected relevance score range."
+}
