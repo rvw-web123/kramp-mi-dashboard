@@ -1278,6 +1278,63 @@
       "refresh_frequency": "monthly",
       "watch_method": "web_monitoring",
       "notes": "Precision ag component supplier."
+    },
+    {
+      "name": "MechaBulletin English",
+      "rss_url": null,
+      "homepage_url": "https://krampgroup.sharepoint.com/sites/Aboutus/MechaBulletin%20English/Forms/AllItems.aspx?id=%2Fsites%2FAboutus%2FMechaBulletin%20English%2FMechaBulletin%20Volume%2029%2308%20ENG%2Epdf&parent=%2Fsites%2FAboutus%2FMechaBulletin%20English&p=true&ga=1",
+      "source_tier": 1,
+      "source_reliability": 5,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "EU-wide"
+      ],
+      "source_type": "market_report",
+      "must_monitor": true,
+      "active": true,
+      "refresh_frequency": "monthly",
+      "watch_method": "web_monitoring",
+      "notes": "Kramp Group internal Agricultural Mechanization Bulletin published on SharePoint. Key executive market briefings."
+    },
+    {
+      "name": "Trekker Online",
+      "rss_url": "https://trekkeronline.nl/feed/",
+      "homepage_url": "https://trekkeronline.nl/",
+      "source_tier": 2,
+      "source_reliability": 4,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Netherlands"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "Dutch trade publication covering agricultural mechanization, tractors, and farming equipment."
+    },
+    {
+      "name": "Mechaman Archief",
+      "rss_url": "https://www.mechaman.nl/feed/",
+      "homepage_url": "https://www.mechaman.nl/archief/",
+      "source_tier": 2,
+      "source_reliability": 4,
+      "default_industries": [
+        "agriculture"
+      ],
+      "default_countries": [
+        "Netherlands"
+      ],
+      "source_type": "trade_media_article",
+      "must_monitor": false,
+      "active": true,
+      "refresh_frequency": "daily",
+      "watch_method": "rss",
+      "notes": "Dutch agricultural mechanization news platform and archive focusing on machinery and technical developments."
     }
   ]
 }
